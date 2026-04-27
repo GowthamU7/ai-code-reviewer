@@ -15,6 +15,7 @@ import (
 	"github.com/GowthamU7/ai-code-reviewer/github"
 	"github.com/GowthamU7/ai-code-reviewer/groq"
 	"github.com/GowthamU7/ai-code-reviewer/parser"
+	"github.com/GowthamU7/ai-code-reviewer/store"
 )
 
 // PullRequestEvent is the shape of the JSON GitHub sends
@@ -105,13 +106,15 @@ func Webhook(w http.ResponseWriter, r *http.Request) {
 
 // processPullRequest is where the real work happens
 // It runs in a goroutine so the HTTP handler can return immediately
+// SetDB sets the database for the handler package
+var DB *store.DB
+
 func processPullRequest(event PullRequestEvent) {
 	log.Printf("Processing PR #%d in %s...",
 		event.PullRequest.Number,
 		event.Repository.FullName,
 	)
 
-	// Fetch the diff
 	ghClient := github.New()
 	rawDiff, err := ghClient.FetchDiff(event.PullRequest.DiffURL)
 	if err != nil {
@@ -119,7 +122,6 @@ func processPullRequest(event PullRequestEvent) {
 		return
 	}
 
-	// Parse into per-file chunks
 	files := parser.ParseDiff(rawDiff)
 	if len(files) == 0 {
 		log.Println("No reviewable files found in diff")
@@ -128,7 +130,6 @@ func processPullRequest(event PullRequestEvent) {
 
 	log.Printf("Reviewing %d files...", len(files))
 
-	// Review each file with Groq
 	groqClient := groq.New()
 	var fullReview strings.Builder
 
@@ -150,10 +151,27 @@ func processPullRequest(event PullRequestEvent) {
 			continue
 		}
 
-		fullReview.WriteString(fmt.Sprintf("### `%s`\n\n%s\n\n---\n\n", file.Filename, review))
+		fullReview.WriteString(fmt.Sprintf(
+			"### `%s`\n\n%s\n\n---\n\n",
+			file.Filename, review,
+		))
+
+		// Save each file review to the database
+		if DB != nil {
+			if err := DB.SaveReview(store.Review{
+				Repo:       event.Repository.FullName,
+				PRNumber:   event.PullRequest.Number,
+				PRTitle:    event.PullRequest.Title,
+				Filename:   file.Filename,
+				Language:   file.Language,
+				ReviewText: review,
+			}); err != nil {
+				log.Printf("Error saving review: %v", err)
+			}
+		}
 	}
 
-	// Post the full review back to GitHub
+	// Post full review to GitHub
 	if fullReview.Len() > 0 {
 		err := ghClient.PostReview(
 			event.Repository.FullName,
