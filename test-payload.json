@@ -1,0 +1,14 @@
+{
+  "action": "opened",
+  "pull_request": {
+    "number": 1,
+    "title": "Test review",
+    "diff_url": "https://github.com/GowthamU7/business-health-dashboardFE/pull/1.diff",
+    "head": {
+      "sha": "abc123"
+    }
+  },
+  "repository": {
+    "full_name": "GowthamU7/business-health-dashboardFE"
+  }
+}
