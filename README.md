@@ -33,7 +33,7 @@ Every time a pull request is opened or updated on a connected GitHub repository,
 |---------|-----|
 | Backend API | https://your-app.up.railway.app/health |
 | Reviews API | https://your-app.up.railway.app/reviews |
-| Dashboard | https://ai-code-reviewer-dashboard.vercel.app |
+| Dashboard | https://ai-code-reviewer-dashboard-chi.vercel.app/ |
 
 ---
 
