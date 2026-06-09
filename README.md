@@ -255,4 +255,4 @@ Inference speed. Groq's custom hardware (LPUs) runs LLaMA 3.3 70B at ~800 tokens
 ## Author
 
 **Gowtham Ullangula**
-[LinkedIn](https://www.linkedin.com/in/gowthamm9/) · [GitHub](https://github.com/GowthamU7)
+[LinkedIn](https://www.linkedin.com/in/gowthamm9/overlay/Project/737691022/treasury/?profileId=ACoAADhS2YQB552dW7mEsxlbNlUtpJ0D04OYFHQ) · [GitHub](https://github.com/GowthamU7)
